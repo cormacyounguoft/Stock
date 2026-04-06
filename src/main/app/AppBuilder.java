@@ -6,36 +6,26 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
-import data_access.InMemoryUserDataAccessObject;
-import entity.CommonUserFactory;
-import entity.UserFactory;
+import data_access.API;
+import entity.StockFactory;
 import interface_adapter.ViewManagerModel;
-import interface_adapter.change_password.ChangePasswordController;
-import interface_adapter.change_password.ChangePasswordPresenter;
-import interface_adapter.change_password.LoggedInViewModel;
-import interface_adapter.login.LoginController;
-import interface_adapter.login.LoginPresenter;
-import interface_adapter.login.LoginViewModel;
-import interface_adapter.logout.LogoutController;
-import interface_adapter.logout.LogoutPresenter;
-import interface_adapter.signup.SignupController;
-import interface_adapter.signup.SignupPresenter;
-import interface_adapter.signup.SignupViewModel;
-import use_case.change_password.ChangePasswordInputBoundary;
-import use_case.change_password.ChangePasswordInteractor;
-import use_case.change_password.ChangePasswordOutputBoundary;
-import use_case.login.LoginInputBoundary;
-import use_case.login.LoginInteractor;
-import use_case.login.LoginOutputBoundary;
-import use_case.logout.LogoutInputBoundary;
-import use_case.logout.LogoutInteractor;
-import use_case.logout.LogoutOutputBoundary;
-import use_case.signup.SignupInputBoundary;
-import use_case.signup.SignupInteractor;
-import use_case.signup.SignupOutputBoundary;
-import view.LoggedInView;
-import view.LoginView;
-import view.SignupView;
+
+import interface_adapter.result.ResultController;
+import interface_adapter.result.ResultPresenter;
+import interface_adapter.result.ResultViewModel;
+import interface_adapter.search.SearchController;
+import interface_adapter.search.SearchPresenter;
+import interface_adapter.search.SearchViewModel;
+
+import use_case.result.ResultInputBoundary;
+import use_case.result.ResultInteractor;
+import use_case.result.ResultOutputBoundary;
+import use_case.search.SearchDataAccessInterface;
+import use_case.search.SearchInputBoundary;
+import use_case.search.SearchInteractor;
+import use_case.search.SearchOutputBoundary;
+import view.ResultView;
+import view.SearchView;
 import view.ViewManager;
 
 /**
@@ -53,19 +43,18 @@ public class AppBuilder {
     private final JPanel cardPanel = new JPanel();
     private final CardLayout cardLayout = new CardLayout();
     // thought question: is the hard dependency below a problem?
-    private final UserFactory userFactory = new CommonUserFactory();
+    private final StockFactory stockFactory = new StockFactory();
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
     private final ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
 
     // thought question: is the hard dependency below a problem?
-    private final InMemoryUserDataAccessObject userDataAccessObject = new InMemoryUserDataAccessObject();
+//    private final InMemoryUserDataAccessObject userDataAccessObject = new InMemoryUserDataAccessObject();
+    private final SearchDataAccessInterface searchDataAccessObject = new API();
 
-    private SignupView signupView;
-    private SignupViewModel signupViewModel;
-    private LoginViewModel loginViewModel;
-    private LoggedInViewModel loggedInViewModel;
-    private LoggedInView loggedInView;
-    private LoginView loginView;
+    private SearchView searchView;
+    private SearchViewModel searchViewModel;
+    private ResultViewModel resultViewModel;
+    private ResultView resultView;
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
@@ -75,10 +64,10 @@ public class AppBuilder {
      * Adds the Signup View to the application.
      * @return this builder
      */
-    public AppBuilder addSignupView() {
-        signupViewModel = new SignupViewModel();
-        signupView = new SignupView(signupViewModel);
-        cardPanel.add(signupView, signupView.getViewName());
+    public AppBuilder addSearchView() {
+        searchViewModel = new SearchViewModel();
+        searchView = new SearchView(searchViewModel);
+        cardPanel.add(searchView, searchView.getViewName());
         return this;
     }
 
@@ -86,21 +75,10 @@ public class AppBuilder {
      * Adds the Login View to the application.
      * @return this builder
      */
-    public AppBuilder addLoginView() {
-        loginViewModel = new LoginViewModel();
-        loginView = new LoginView(loginViewModel);
-        cardPanel.add(loginView, loginView.getViewName());
-        return this;
-    }
-
-    /**
-     * Adds the LoggedIn View to the application.
-     * @return this builder
-     */
-    public AppBuilder addLoggedInView() {
-        loggedInViewModel = new LoggedInViewModel();
-        loggedInView = new LoggedInView(loggedInViewModel);
-        cardPanel.add(loggedInView, loggedInView.getViewName());
+    public AppBuilder addResultView() {
+        resultViewModel = new ResultViewModel();
+        resultView = new ResultView(resultViewModel);
+        cardPanel.add(resultView, resultView.getViewName());
         return this;
     }
 
@@ -108,14 +86,14 @@ public class AppBuilder {
      * Adds the Signup Use Case to the application.
      * @return this builder
      */
-    public AppBuilder addSignupUseCase() {
-        final SignupOutputBoundary signupOutputBoundary = new SignupPresenter(viewManagerModel,
-                signupViewModel, loginViewModel);
-        final SignupInputBoundary userSignupInteractor = new SignupInteractor(
-                userDataAccessObject, signupOutputBoundary, userFactory);
+    public AppBuilder addSearchUseCase() {
+        final SearchOutputBoundary searchOutputBoundary = new SearchPresenter(viewManagerModel,
+                searchViewModel, resultViewModel);
+        final SearchInputBoundary userSignupInteractor = new SearchInteractor(
+                searchDataAccessObject, searchOutputBoundary, stockFactory);
 
-        final SignupController controller = new SignupController(userSignupInteractor);
-        signupView.setSignupController(controller);
+        final SearchController controller = new SearchController(userSignupInteractor);
+        searchView.setSearchController(controller);
         return this;
     }
 
@@ -123,52 +101,18 @@ public class AppBuilder {
      * Adds the Login Use Case to the application.
      * @return this builder
      */
-    public AppBuilder addLoginUseCase() {
-        final LoginOutputBoundary loginOutputBoundary = new LoginPresenter(viewManagerModel,
-                loggedInViewModel, loginViewModel);
-        final LoginInputBoundary loginInteractor = new LoginInteractor(
-                userDataAccessObject, loginOutputBoundary);
+    public AppBuilder addResultUseCase() {
+        final ResultOutputBoundary resultOutputBoundary = new ResultPresenter(viewManagerModel,
+                resultViewModel, searchViewModel);
+        final ResultInputBoundary resultInteractor = new ResultInteractor(resultOutputBoundary);
 
-        final LoginController loginController = new LoginController(loginInteractor);
-        loginView.setLoginController(loginController);
+        final ResultController resultController = new ResultController(resultInteractor);
+        resultView.setResultController(resultController);
         return this;
     }
 
     /**
-     * Adds the Change Password Use Case to the application.
-     * @return this builder
-     */
-    public AppBuilder addChangePasswordUseCase() {
-        final ChangePasswordOutputBoundary changePasswordOutputBoundary =
-                new ChangePasswordPresenter(loggedInViewModel);
-
-        final ChangePasswordInputBoundary changePasswordInteractor =
-                new ChangePasswordInteractor(userDataAccessObject, changePasswordOutputBoundary, userFactory);
-
-        final ChangePasswordController changePasswordController =
-                new ChangePasswordController(changePasswordInteractor);
-        loggedInView.setChangePasswordController(changePasswordController);
-        return this;
-    }
-
-    /**
-     * Adds the Logout Use Case to the application.
-     * @return this builder
-     */
-    public AppBuilder addLogoutUseCase() {
-        final LogoutOutputBoundary logoutOutputBoundary = new LogoutPresenter(viewManagerModel,
-                loggedInViewModel, loginViewModel);
-
-        final LogoutInputBoundary logoutInteractor =
-                new LogoutInteractor(userDataAccessObject, logoutOutputBoundary);
-
-        final LogoutController logoutController = new LogoutController(logoutInteractor);
-        loggedInView.setLogoutController(logoutController);
-        return this;
-    }
-
-    /**
-     * Creates the JFrame for the application and initially sets the SignupView to be displayed.
+     * Creates the JFrame for the application and initially sets the SearchView to be displayed.
      * @return the application
      */
     public JFrame build() {
@@ -177,7 +121,7 @@ public class AppBuilder {
 
         application.add(cardPanel);
 
-        viewManagerModel.setState(signupView.getViewName());
+        viewManagerModel.setState(searchView.getViewName());
         viewManagerModel.firePropertyChanged();
 
         return application;
