@@ -30,7 +30,10 @@ public class SearchInteractor implements SearchInputBoundary {
             searchPresenter.prepareSuccessView(searchOutputData);
         }
         catch (IOException | InterruptedException exception) {
-            searchPresenter.prepareFailView("Ticker not found");
+            final String errorMessage = exception.getMessage() == null
+                    ? "Search failed."
+                    : exception.getMessage();
+            searchPresenter.prepareFailView(errorMessage);
         }
     }
 

@@ -26,6 +26,9 @@ public class SearchPresenter implements SearchOutputBoundary {
     @Override
     public void prepareSuccessView(SearchOutputData response) {
         // On success, switch to the login view.
+        final SearchState searchState = searchViewModel.getState();
+        searchState.setSearchError(null);
+
         final ResultState resultState = resultViewModel.getState();
         resultState.setTicker(response.getStock().getTicker());
         resultState.setPrice(response.getStock().getPrice());

@@ -20,9 +20,9 @@ public class SearchView extends JPanel implements ActionListener, PropertyChange
 
     private final String viewName = "search";
     private final SearchViewModel searchViewModel;
+    private static final int ERROR_POPUP_COLUMNS = 35;
 
     private final JTextField searchQueryInputField = new JTextField(15);
-    private final JLabel searchQueryErrorField = new JLabel();
 
     private final JButton search;
     private SearchController searchController;
@@ -81,7 +81,6 @@ public class SearchView extends JPanel implements ActionListener, PropertyChange
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.add(title);
         this.add(searchBox);
-        this.add(searchQueryErrorField);
         this.add(buttons);
     }
 
@@ -97,7 +96,19 @@ public class SearchView extends JPanel implements ActionListener, PropertyChange
     public void propertyChange(PropertyChangeEvent evt) {
         final SearchState state = (SearchState) evt.getNewValue();
         setFields(state);
-        searchQueryErrorField.setText(state.getSearchError());
+        final String searchError = state.getSearchError();
+        if (searchError != null && !searchError.isBlank()) {
+            final JTextArea errorTextArea = new JTextArea(searchError);
+            errorTextArea.setColumns(ERROR_POPUP_COLUMNS);
+            errorTextArea.setLineWrap(true);
+            errorTextArea.setWrapStyleWord(true);
+            errorTextArea.setEditable(false);
+            errorTextArea.setOpaque(false);
+            errorTextArea.setFocusable(false);
+
+            JOptionPane.showMessageDialog(this, errorTextArea, "Search Error", JOptionPane.ERROR_MESSAGE);
+            state.setSearchError(null);
+        }
     }
 
     private void setFields(SearchState state) {
