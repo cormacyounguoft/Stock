@@ -1,7 +1,5 @@
 package use_case.search;
 
-import entity.Stock;
-import entity.StockFactory;
 import entity.StockInterface;
 
 import java.io.IOException;
@@ -12,14 +10,11 @@ import java.io.IOException;
 public class SearchInteractor implements SearchInputBoundary {
     private final SearchDataAccessInterface searchDataAccessInterface;
     private final SearchOutputBoundary searchPresenter;
-    private final StockFactory stockFactory;
 
     public SearchInteractor(SearchDataAccessInterface signupDataAccessInterface,
-                            SearchOutputBoundary searchOutputBoundary,
-                            StockFactory stockFactory) {
+                            SearchOutputBoundary searchOutputBoundary) {
         this.searchDataAccessInterface = signupDataAccessInterface;
         this.searchPresenter = searchOutputBoundary;
-        this.stockFactory = stockFactory;
     }
 
     @Override

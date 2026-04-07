@@ -29,9 +29,8 @@ public class API implements SearchDataAccessInterface {
 
         final String encodedTicker = URLEncoder.encode(normalizedTicker, StandardCharsets.UTF_8);
         final String quoteBody = fetch("/quote?symbol=" + encodedTicker + "&token=" + API_KEY);
-        final String profileBody = fetch("/stock/profile2?symbol=" + encodedTicker + "&token=" + API_KEY);
 
-        final Map<String, String> details = buildDetails(normalizedTicker, quoteBody, profileBody);
+        final Map<String, String> details = buildDetails(normalizedTicker, quoteBody);
         return new StockFactory().create(normalizedTicker, details);
     }
 
@@ -57,7 +56,7 @@ public class API implements SearchDataAccessInterface {
         return response.body();
     }
 
-    private Map<String, String> buildDetails(String ticker, String quoteBody, String profileBody) throws IOException {
+    private Map<String, String> buildDetails(String ticker, String quoteBody) throws IOException {
         final LinkedHashMap<String, String> details = new LinkedHashMap<>();
 
         final String currentPrice = extractNumber(quoteBody, "c");
@@ -72,15 +71,13 @@ public class API implements SearchDataAccessInterface {
             throw new IOException("Ticker not found: " + ticker + ".");
         }
 
-        put(details, "Ticker", ticker);
-        put(details, "Current Price", currentPrice);
-        put(details, "Change", change);
-        if (percentChange != null && !percentChange.isBlank()) {
-            put(details, "Percent Change", percentChange + "%");
-        }
-        put(details, "High", highPrice);
-        put(details, "Low", lowPrice);
-        put(details, "Previous Close", previousClose);
+        put(details, "ticker", ticker);
+        put(details, "currentPrice", currentPrice);
+        put(details, "change", change);
+        put(details, "percentChange", percentChange);
+        put(details, "high", highPrice);
+        put(details, "low", lowPrice);
+        put(details, "previousClose", previousClose);
 
         return details;
     }
@@ -104,16 +101,6 @@ public class API implements SearchDataAccessInterface {
         }
     }
 
-    private String extractString(String body, String key) {
-        final Pattern pattern = Pattern.compile("\"" + Pattern.quote(key) + "\"\\s*:\\s*\"((?:\\\\.|[^\"\\\\])*)\"");
-        final Matcher matcher = pattern.matcher(body);
-        if (!matcher.find()) {
-            return null;
-        }
-
-        return unescapeJson(matcher.group(1));
-    }
-
     private String extractNumber(String body, String key) {
         final Pattern pattern = Pattern.compile("\"" + Pattern.quote(key) + "\"\\s*:\\s*(-?[0-9]+(?:\\.[0-9]+)?)");
         final Matcher matcher = pattern.matcher(body);
@@ -122,15 +109,5 @@ public class API implements SearchDataAccessInterface {
         }
 
         return matcher.group(1);
-    }
-
-    private String unescapeJson(String value) {
-        return value
-                .replace("\\\"", "\"")
-                .replace("\\/", "/")
-                .replace("\\n", System.lineSeparator())
-                .replace("\\r", "")
-                .replace("\\t", "\t")
-                .replace("\\\\", "\\");
     }
 }

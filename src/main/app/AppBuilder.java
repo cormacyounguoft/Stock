@@ -7,7 +7,6 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
 import data_access.API;
-import entity.StockFactory;
 import interface_adapter.ViewManagerModel;
 
 import interface_adapter.result.ResultController;
@@ -42,8 +41,6 @@ import view.ViewManager;
 public class AppBuilder {
     private final JPanel cardPanel = new JPanel();
     private final CardLayout cardLayout = new CardLayout();
-    // thought question: is the hard dependency below a problem?
-    private final StockFactory stockFactory = new StockFactory();
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
     private final ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
 
@@ -90,7 +87,7 @@ public class AppBuilder {
         final SearchOutputBoundary searchOutputBoundary = new SearchPresenter(viewManagerModel,
                 searchViewModel, resultViewModel);
         final SearchInputBoundary userSignupInteractor = new SearchInteractor(
-                searchDataAccessObject, searchOutputBoundary, stockFactory);
+                searchDataAccessObject, searchOutputBoundary);
 
         final SearchController controller = new SearchController(userSignupInteractor);
         searchView.setSearchController(controller);
