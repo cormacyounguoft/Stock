@@ -1,26 +1,29 @@
 package interface_adapter.result;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
- * The state for the Search View Model.
+ * The state for the result view model.
  */
 public class ResultState {
 
     private String ticker;
-    private Float price;
+    private Map<String, String> details = new LinkedHashMap<>();
 
     public String getTicker() {
         return ticker;
     }
 
-    public Float getPrice() {
-        return price;
+    public Map<String, String> getDetails() {
+        return new LinkedHashMap<>(details);
     }
 
     public void setTicker(String ticker) {
         this.ticker = ticker;
     }
 
-    public void setPrice(Float price) {
-        this.price = price;
+    public void setDetails(Map<String, String> details) {
+        this.details = new LinkedHashMap<>(details);
     }
 }

@@ -31,7 +31,7 @@ public class SearchPresenter implements SearchOutputBoundary {
 
         final ResultState resultState = resultViewModel.getState();
         resultState.setTicker(response.getStock().getTicker());
-        resultState.setPrice(response.getStock().getPrice());
+        resultState.setDetails(response.getStock().getDetails());
         this.resultViewModel.setState(resultState);
         resultViewModel.firePropertyChanged();
 

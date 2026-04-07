@@ -1,10 +1,13 @@
 package entity;
 
+import java.util.Map;
+
 /**
- * The representation of a user in our program.
+ * The representation of stock details in the program.
  */
 public interface StockInterface {
 
     String getTicker();
-    Float getPrice();
+
+    Map<String, String> getDetails();
 }

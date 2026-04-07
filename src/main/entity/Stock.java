@@ -1,16 +1,20 @@
 package entity;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
- * A simple implementation of the StockInterface interface.
+ * A stock details entity backed by a display-ordered field map.
  */
 public class Stock implements StockInterface {
 
     private final String ticker;
-    private final Float price;
+    private final Map<String, String> details;
 
-    public Stock(String ticker, Float price) {
+    public Stock(String ticker, Map<String, String> details) {
         this.ticker = ticker;
-        this.price = price;
+        this.details = Collections.unmodifiableMap(new LinkedHashMap<>(details));
     }
 
     @Override
@@ -19,7 +23,7 @@ public class Stock implements StockInterface {
     }
 
     @Override
-    public Float getPrice() {
-        return price;
+    public Map<String, String> getDetails() {
+        return details;
     }
 }

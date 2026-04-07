@@ -1,10 +1,11 @@
 package entity;
 
+import java.util.Map;
+
 /**
- * Factory for creating users.
+ * Factory for creating stock detail entities.
  */
 public interface StockFactoryInterface {
 
-    StockInterface create(String ticker, float price);
-
+    StockInterface create(String ticker, Map<String, String> details);
 }
