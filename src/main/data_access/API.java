@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class API implements SearchDataAccessInterface {
-    private static final String API_KEY = "d7a4j2hr01qn9i7jkr10d7a4j2hr01qn9i7jkr1g";
+    private static final String API_KEY = "d7cn1q9r01qv03et0b80d7cn1q9r01qv03et0b8g";
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
 
     @Override
